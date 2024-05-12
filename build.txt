@@ -1,0 +1,3 @@
+displayName = Inventory Drag
+author = Jadams
+version = 0.1
