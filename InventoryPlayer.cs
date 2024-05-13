@@ -1,13 +1,6 @@
-﻿using Humanizer;
-using Microsoft.Build.Tasks.Deployment.ManifestUtilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Terraria;
-using Terraria.GameInput;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -18,14 +11,25 @@ namespace InventoryDrag
         internal int contextCache = -1;
         internal int slotCache = -1;
         internal bool dragging = false;
+        internal int itemCache = ItemID.None;
         public bool HoverSlot2(Item[] inventory, int context, int slot)
         {
-            bool slotChanged = contextCache != context || slotCache != slot;
+            // journey mode slots are always context 29 and slot 0 so their only difference is the item 
+            bool journeyModeSlotChange = itemCache != inventory[slot].type && context == ItemSlot.Context.CreativeInfinite;
+
+            bool slotChanged = contextCache != context || slotCache != slot || journeyModeSlotChange;
             contextCache = context;
             slotCache = slot;
+            itemCache = inventory[slot].type;
 
             // the vanilla click methods should handle which special keys are pressed so this can just be true
             bool holdingSpecialKey = ItemSlot.ControlInUse || ItemSlot.ShiftInUse || true;
+
+            // you can right click an empty vanity slot to switch with main equip
+            // as far as I know this might be the only case for a empty slot to be draggable
+            // TODO: validate this claim and only allow for right click
+            bool allowEmptySlots = context == ItemSlot.Context.EquipArmorVanity;
+            if (inventory[slot].IsAir && !allowEmptySlots) return false;
 
             // this seems dumb. A better way must exist
             if (!((Main.mouseLeft || Main.mouseRight) && holdingSpecialKey))
@@ -36,15 +40,18 @@ namespace InventoryDrag
             if (Main.mouseLeft && holdingSpecialKey && (!dragging || slotChanged))
             {
                 dragging = true;
-               // Main.NewText($"context: {context}, slot: {slot}");
+                Main.NewText($"context: {context}, slot: {slot}");
                 bool leftClick = Main.mouseLeftRelease && Main.mouseLeft;
                 bool mlr = Main.mouseLeftRelease;
 
                 // skip when the mouse was just pressed down since vanilla can handle it as a click
                 if (mlr) return false;
 
+                Main.NewText("custom left click");
+
                 if (!leftClick)
                 {
+                    
                     // this call skips the meed for Main.mouseLeftRelease to be true
                     if (VanillaLeftClick(inventory, context, slot))
                         return false;
@@ -61,6 +68,7 @@ namespace InventoryDrag
             else if (Main.mouseRight && holdingSpecialKey && (!dragging || slotChanged))
             {
                 dragging = true;
+                Main.NewText($"context: {context}, slot: {slot}");
                 bool mrr = Main.mouseRightRelease;
 
                 // skip right click for the same reason as above

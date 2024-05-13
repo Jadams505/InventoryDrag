@@ -17,9 +17,10 @@ namespace InventoryDrag
 
         private void On_ItemSlot_MouseHover_ItemArray_int_int(On_ItemSlot.orig_MouseHover_ItemArray_int_int orig, Item[] inv, int context, int slot)
         {
-            orig(inv, context, slot);
-
             Main.LocalPlayer.GetModPlayer<InventoryPlayer>().HoverSlot2(inv, context, slot);
+
+            // call orig after so that the tooltip does not display if items were moved
+            orig(inv, context, slot);
         }
 
         private void IL_ItemSlot_LeftClick_ItemArray_int_int(MonoMod.Cil.ILContext il)
