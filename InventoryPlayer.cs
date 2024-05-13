@@ -2,6 +2,7 @@
 using System.Reflection;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -37,7 +38,7 @@ namespace InventoryDrag
             // you can right click an empty vanity slot to switch with main equip
             // as far as I know this might be the only case for a empty slot to be draggable
             // TODO: validate this claim and only allow for right click
-            bool allowEmptySlots = context == ItemSlot.Context.EquipArmorVanity;
+            bool allowEmptySlots = context == ItemSlot.Context.EquipArmorVanity || context == ItemSlot.Context.EquipAccessoryVanity;
             if (inventory[slot].IsAir && !allowEmptySlots) return false;
 
             // this seems dumb. A better way must exist
@@ -86,7 +87,8 @@ namespace InventoryDrag
                 // skip right click since vanilla already clicked
                 // also skip if it can be right clicked since this would have already been handled before
                 // HoverSlot is called (prevents double consumption)
-                if (rightClickCache && rightClickable)
+                // TODO: Check this logic (mrr == false if rightClickable == true)?
+                if (mrr || (rightClickCache && rightClickable))
                 {
                     Main.NewText($"vanilla right click context: {context}, slot: {slot} release: {Main.mouseRightRelease} cache: {rightClickCache}");
                     return false;
