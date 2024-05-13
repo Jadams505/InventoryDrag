@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -12,7 +13,15 @@ namespace InventoryDrag
         internal int slotCache = -1;
         internal bool dragging = false;
         internal int itemCache = ItemID.None;
-        public bool HoverSlot2(Item[] inventory, int context, int slot)
+
+        // This is required for right clickable items like crates and bags.
+        // Basically the vanilla functions set Main.mouseRightRelease to false so
+        // I can't differenciate between whether a click happened or not
+        // This variable caches the value before right click is called.
+        internal bool rightClickCache = Main.mouseRightRelease;
+
+        // This is called directly before ItemSlot.MouseHover()
+        public bool OverrideHover(Item[] inventory, int context, int slot)
         {
             // journey mode slots are always context 29 and slot 0 so their only difference is the item 
             bool journeyModeSlotChange = itemCache != inventory[slot].type && context == ItemSlot.Context.CreativeInfinite;
@@ -40,19 +49,22 @@ namespace InventoryDrag
             if (Main.mouseLeft && holdingSpecialKey && (!dragging || slotChanged))
             {
                 dragging = true;
-                Main.NewText($"context: {context}, slot: {slot}");
                 bool leftClick = Main.mouseLeftRelease && Main.mouseLeft;
                 bool mlr = Main.mouseLeftRelease;
 
                 // skip when the mouse was just pressed down since vanilla can handle it as a click
-                if (mlr) return false;
-
-                Main.NewText("custom left click");
+                if (mlr)
+                {
+                    Main.NewText($"vanilla left click context: {context}, slot: {slot}");
+                    return false;
+                }
+                    
+                Main.NewText($"custom left click context: {context}, slot: {slot}");
 
                 if (!leftClick)
                 {
                     
-                    // this call skips the meed for Main.mouseLeftRelease to be true
+                    // this call skips the need for Main.mouseLeftRelease to be true
                     if (VanillaLeftClick(inventory, context, slot))
                         return false;
 
@@ -68,11 +80,19 @@ namespace InventoryDrag
             else if (Main.mouseRight && holdingSpecialKey && (!dragging || slotChanged))
             {
                 dragging = true;
-                Main.NewText($"context: {context}, slot: {slot}");
                 bool mrr = Main.mouseRightRelease;
+                bool rightClickable = context == ItemSlot.Context.InventoryItem && ItemLoader.CanRightClick(inventory[slot]);
 
-                // skip right click for the same reason as above
-                if (mrr) return false;
+                // skip right click since vanilla already clicked
+                // also skip if it can be right clicked since this would have already been handled before
+                // HoverSlot is called (prevents double consumption)
+                if (rightClickCache && rightClickable)
+                {
+                    Main.NewText($"vanilla right click context: {context}, slot: {slot} release: {Main.mouseRightRelease} cache: {rightClickCache}");
+                    return false;
+                }
+
+                Main.NewText($"custom right click context: {context}, slot: {slot}");
 
                 Main.mouseRightRelease = true;
                 ItemSlot.RightClick(inventory, context, slot);

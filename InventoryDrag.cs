@@ -12,12 +12,20 @@ namespace InventoryDrag
         public override void Load()
         {
             Terraria.UI.IL_ItemSlot.LeftClick_ItemArray_int_int += IL_ItemSlot_LeftClick_ItemArray_int_int;
+
             Terraria.UI.On_ItemSlot.MouseHover_ItemArray_int_int += On_ItemSlot_MouseHover_ItemArray_int_int;
+            Terraria.UI.On_ItemSlot.RightClick_ItemArray_int_int += On_ItemSlot_RightClick_ItemArray_int_int;
+        }
+
+        private void On_ItemSlot_RightClick_ItemArray_int_int(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot)
+        {
+            Main.LocalPlayer.GetModPlayer<InventoryPlayer>().rightClickCache = Main.mouseRightRelease;
+            orig(inv, context, slot);
         }
 
         private void On_ItemSlot_MouseHover_ItemArray_int_int(On_ItemSlot.orig_MouseHover_ItemArray_int_int orig, Item[] inv, int context, int slot)
         {
-            Main.LocalPlayer.GetModPlayer<InventoryPlayer>().HoverSlot2(inv, context, slot);
+            Main.LocalPlayer.GetModPlayer<InventoryPlayer>().OverrideHover(inv, context, slot);
 
             // call orig after so that the tooltip does not display if items were moved
             orig(inv, context, slot);
