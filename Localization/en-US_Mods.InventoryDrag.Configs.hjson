@@ -1,0 +1,84 @@
+InventoryConfig: {
+	DisplayName: Inventory Config
+
+	Headers: {
+		MainFeatures: Main Features Header
+		ExtraFeatures: Extra Features Header
+	}
+
+	LeftMouse: {
+		Label: Left Mouse
+		Tooltip: ""
+	}
+
+	RightMouse: {
+		Label: Right Mouse
+		Tooltip: ""
+	}
+
+	StackableGrabBags: {
+		Label: Stackable Grab Bags
+		Tooltip: ""
+	}
+}
+
+LeftMouseOptions: {
+	Tooltip: ""
+
+	Enable: {
+		Label: Enable
+		Tooltip: ""
+	}
+
+	ModifierOptions: {
+		Label: Modifier Options
+		Tooltip: ""
+	}
+}
+
+ModifierOptions: {
+	Tooltip: ""
+
+	AllowCtrl: {
+		Label: Allow Ctrl
+		Tooltip: ""
+	}
+
+	AllowShift: {
+		Label: Allow Shift
+		Tooltip: ""
+	}
+
+	AllowAlt: {
+		Label: Allow Alt
+		Tooltip: ""
+	}
+}
+
+RightMouseOptions: {
+	Tooltip: ""
+
+	Enable: {
+		Label: Enable
+		Tooltip: ""
+	}
+
+	ModifierOptions: {
+		Label: Modifier Options
+		Tooltip: ""
+	}
+}
+
+StackableGrabBags: {
+	Tooltip: ""
+
+	Enable: {
+		Label: Enable
+		Tooltip: ""
+	}
+
+	ShowTooltip: {
+		Label: Show Tooltip
+		Tooltip: ""
+	}
+}
