@@ -83,12 +83,13 @@ namespace InventoryDrag
                 dragging = true;
                 bool mrr = Main.mouseRightRelease;
                 bool rightClickable = context == ItemSlot.Context.InventoryItem && ItemLoader.CanRightClick(inventory[slot]);
+                bool vanillaHandled = context == ItemSlot.Context.GuideItem || context == ItemSlot.Context.CraftingMaterial;
 
                 // skip right click since vanilla already clicked
                 // also skip if it can be right clicked since this would have already been handled before
                 // HoverSlot is called (prevents double consumption)
                 // TODO: Check this logic (mrr == false if rightClickable == true)?
-                if (mrr || (rightClickCache && rightClickable))
+                if (mrr || (rightClickCache && rightClickable) || vanillaHandled)
                 {
                     Main.NewText($"vanilla right click context: {context}, slot: {slot} release: {Main.mouseRightRelease} cache: {rightClickCache}");
                     return false;
