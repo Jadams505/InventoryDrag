@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using InventoryDrag.Config;
+using Microsoft.Xna.Framework.Input;
+using System.Linq;
 using System.Reflection;
 using Terraria;
 using Terraria.GameInput;
@@ -58,36 +60,39 @@ public class InventoryPlayer : ModPlayer
         return base.HoverSlot(inventory, context, slot);
     }
 
-    // Returns true if an additional left click was fired
+    /// <summary>
+    /// Performs a left click if the config allows
+    /// </summary>
+    /// <param name="inventory">The collection of items</param>
+    /// <param name="context">What type of slot should be clicked on</param>
+    /// <param name="slot">The index in inventory containing the current item</param>
+    /// <returns>True if an additional left click was fired</returns>
     private bool HandleLeftClick(Item[] inventory, int context, int slot)
     {
         dragging = true;
-        bool leftClick = Main.mouseLeftRelease && Main.mouseLeft;
-        bool mlr = Main.mouseLeftRelease;
+        bool mouseLeftRelease = Main.mouseLeftRelease;
 
         // skip when the mouse was just pressed down since vanilla can handle it as a click
-        if (mlr)
+        if (mouseLeftRelease)
         {
             Main.NewText($"vanilla left click context: {context}, slot: {slot}");
             return false;
         }
 
+        // skip extra left click if disabled by config
+        var leftMouse = InventoryConfig.Instance.LeftMouse;
+        if (!leftMouse.Enabled) return false;
+        if (!leftMouse.ModifierOptions.IsSatisfied()) return false;
+
         Main.NewText($"custom left click context: {context}, slot: {slot}");
 
-        if (!leftClick)
-        {
+        // this call skips the need for Main.mouseLeftRelease to be true
+        if (VanillaLeftClick(inventory, context, slot))
+            return true;
 
-            // this call skips the need for Main.mouseLeftRelease to be true
-            if (VanillaLeftClick(inventory, context, slot))
-                return false;
-
-            Main.mouseLeftRelease = true;
-        }
-
-        // do the normal left click
+        Main.mouseLeftRelease = true;
         ItemSlot.LeftClick(inventory, context, slot);
-
-        Main.mouseLeftRelease = mlr;
+        Main.mouseLeftRelease = mouseLeftRelease;
 
         return true;
     }
@@ -125,13 +130,17 @@ public class InventoryPlayer : ModPlayer
     internal static MethodInfo ItemSlot_OverrideLeftClick = typeof(ItemSlot).GetMethod("OverrideLeftClick", BindingFlags.NonPublic | BindingFlags.Static);
     internal static MethodInfo ItemSlot_LeftClick_SellOrTrash = typeof(ItemSlot).GetMethod("LeftClick_SellOrTrash", BindingFlags.NonPublic | BindingFlags.Static);
 
+    /// <summary>
+    /// Same as vanilla's ItemSlot.LeftClick() but removes the need for Main.mouseLeftRelease since
+    /// it could already be reset from the original left click call
+    /// </summary>
+    /// <returns>True if a click was perfomed</returns>
     private static bool VanillaLeftClick(Item[] inventory, int context, int slot)
     {
         Player player = Main.LocalPlayer;
-        bool leftClick = Main.mouseLeftRelease && Main.mouseLeft || true;
+        bool leftClick = /* Main.mouseLeftRelease && */Main.mouseLeft;
         if (leftClick)
         {
-            //Main.NewText($"cursorOverride: {Main.cursorOverride}");
             if ((bool)ItemSlot_OverrideLeftClick?.Invoke(null, [inventory, context, slot]))
                 return true;
 

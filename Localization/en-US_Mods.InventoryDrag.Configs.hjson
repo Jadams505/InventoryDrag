@@ -53,6 +53,11 @@ ModifierOptions: {
 		Label: Allow Alt
 		Tooltip: ""
 	}
+
+	RequireModifier: {
+		Label: Require Modifier
+		Tooltip: ""
+	}
 }
 
 RightMouseOptions: {

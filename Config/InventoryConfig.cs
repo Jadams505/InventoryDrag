@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
+using Terraria.UI;
 
 namespace InventoryDrag.Config;
 
@@ -64,18 +66,30 @@ public class ModifierOptions
     public bool AllowCtrl = true;
     public bool AllowShift = true;
     public bool AllowAlt = true;
+    public bool RequireModifier = false;
+
+    public bool IsSatisfied()
+    {
+        //TODO: consider the order of presedence in vanilla: Alt > Ctrl > Shift
+        if (!AllowAlt && Main.keyState.IsKeyDown(Main.FavoriteKey)) return false;
+        if (!AllowCtrl && ItemSlot.ControlInUse) return false;
+        if (!AllowShift && ItemSlot.ShiftInUse) return false;
+        if (RequireModifier && !(ItemSlot.ShiftInUse || ItemSlot.ControlInUse || Main.keyState.IsKeyDown(Main.FavoriteKey))) return false;
+        return true;
+    }
 
     public override bool Equals(object obj)
     {
         return obj is ModifierOptions options &&
                AllowCtrl == options.AllowCtrl &&
                AllowShift == options.AllowShift &&
-               AllowAlt == options.AllowAlt;
+               AllowAlt == options.AllowAlt &&
+               RequireModifier == options.RequireModifier;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(AllowCtrl, AllowShift, AllowAlt);
+        return HashCode.Combine(AllowCtrl, AllowShift, AllowAlt, RequireModifier);
     }
 }
 
