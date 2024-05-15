@@ -16,8 +16,8 @@ InventoryConfig: {
 		Tooltip: ""
 	}
 
-	StackableGrabBags: {
-		Label: Stackable Grab Bags
+	SplittableGrabBags: {
+		Label: Splittable Grab Bags
 		Tooltip: ""
 	}
 }
@@ -25,8 +25,8 @@ InventoryConfig: {
 LeftMouseOptions: {
 	Tooltip: ""
 
-	Enable: {
-		Label: Enable
+	Enabled: {
+		Label: Enabled
 		Tooltip: ""
 	}
 
@@ -58,8 +58,8 @@ ModifierOptions: {
 RightMouseOptions: {
 	Tooltip: ""
 
-	Enable: {
-		Label: Enable
+	Enabled: {
+		Label: Enabled
 		Tooltip: ""
 	}
 
@@ -69,11 +69,11 @@ RightMouseOptions: {
 	}
 }
 
-StackableGrabBags: {
+SplittableGrabBags: {
 	Tooltip: ""
 
-	Enable: {
-		Label: Enable
+	Enabled: {
+		Label: Enabled
 		Tooltip: ""
 	}
 

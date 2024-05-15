@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
 namespace InventoryDrag.Config;
 
 public class InventoryConfig : ModConfig
 {
+    public static InventoryConfig Instance => ModContent.GetInstance<InventoryConfig>();
+
     public override ConfigScope Mode => ConfigScope.ClientSide;
 
     [Header("MainFeatures")]
@@ -17,42 +20,42 @@ public class InventoryConfig : ModConfig
 
     [Header("ExtraFeatures")]
     [Expand(false)]
-    public StackableGrabBags StackableGrabBags = new();
+    public SplittableGrabBags SplittableGrabBags = new();
 }
 
 public class LeftMouseOptions
 {
-    public bool Enable = true;
+    public bool Enabled = true;
     public ModifierOptions ModifierOptions = new();
 
     public override bool Equals(object obj)
     {
         return obj is LeftMouseOptions options &&
-               Enable == options.Enable &&
+               Enabled == options.Enabled &&
                EqualityComparer<ModifierOptions>.Default.Equals(ModifierOptions, options.ModifierOptions);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Enable, ModifierOptions);
+        return HashCode.Combine(Enabled, ModifierOptions);
     }
 }
 
 public class RightMouseOptions
 {
-    public bool Enable = true;
+    public bool Enabled = true;
     public ModifierOptions ModifierOptions = new();
 
     public override bool Equals(object obj)
     {
         return obj is RightMouseOptions options &&
-               Enable == options.Enable &&
+               Enabled == options.Enabled &&
                EqualityComparer<ModifierOptions>.Default.Equals(ModifierOptions, options.ModifierOptions);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Enable, ModifierOptions);
+        return HashCode.Combine(Enabled, ModifierOptions);
     }
 }
 
@@ -77,22 +80,22 @@ public class ModifierOptions
 }
 
 
-public class StackableGrabBags
+public class SplittableGrabBags
 {
-    public bool Enable = true;
+    public bool Enabled = true;
 
     public bool ShowTooltip = true;
 
     public override bool Equals(object obj)
     {
-        return obj is StackableGrabBags bags &&
-               Enable == bags.Enable &&
+        return obj is SplittableGrabBags bags &&
+               Enabled == bags.Enabled &&
                ShowTooltip == bags.ShowTooltip;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Enable, ShowTooltip);
+        return HashCode.Combine(Enabled, ShowTooltip);
     }
 }
 
