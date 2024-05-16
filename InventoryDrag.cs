@@ -13,8 +13,17 @@ public class InventoryDrag : Mod
     {
         Terraria.UI.On_ItemSlot.MouseHover_ItemArray_int_int += On_ItemSlot_MouseHover_ItemArray_int_int;
         Terraria.UI.On_ItemSlot.RightClick_ItemArray_int_int += On_ItemSlot_RightClick_ItemArray_int_int;
+        Terraria.On_Main.DrawInventory += On_Main_DrawInventory;
 
         MonoModHooks.Add(ItemLoader_CanRightClick, On_ItemLoader_CanRightClick_Item);
+    }
+
+    private void On_Main_DrawInventory(On_Main.orig_DrawInventory orig, Main self)
+    {
+        var player = Main.LocalPlayer.GetModPlayer<InventoryPlayer>();
+        player.hovering = false;
+        orig(self);
+        player.noSlot = !player.hovering;
     }
 
     private delegate bool orig_ItemLoader_CanRightClick(Item item);

@@ -1,11 +1,7 @@
 ﻿using InventoryDrag.Config;
-using Microsoft.Xna.Framework.Input;
-using System.Linq;
 using System.Reflection;
 using Terraria;
-using Terraria.GameInput;
 using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -15,8 +11,13 @@ public class InventoryPlayer : ModPlayer
 {
     internal int contextCache = -1;
     internal int slotCache = -1;
-    internal bool dragging = false;
     internal int itemCache = ItemID.None;
+    internal bool hovering = false;
+
+    /// <summary>
+    /// Set by InventoryDrag.DrawInventory() to determine when the player is no longer hovering over a slot
+    /// </summary>
+    internal bool noSlot = true; 
 
     // This is required for right clickable items like crates and bags.
     // Basically the vanilla functions set Main.mouseRightRelease to false so
@@ -27,10 +28,12 @@ public class InventoryPlayer : ModPlayer
     // This is called directly before ItemSlot.MouseHover()
     public bool OverrideHover(Item[] inventory, int context, int slot)
     {
+        hovering = true;
+
         // journey mode slots are always context 29 and slot 0 so their only difference is the item 
         bool journeyModeSlotChange = itemCache != inventory[slot].type && context == ItemSlot.Context.CreativeInfinite;
 
-        bool slotChanged = contextCache != context || slotCache != slot || journeyModeSlotChange;
+        bool slotChanged = noSlot || contextCache != context || slotCache != slot || journeyModeSlotChange;
         contextCache = context;
         slotCache = slot;
         itemCache = inventory[slot].type;
@@ -41,18 +44,12 @@ public class InventoryPlayer : ModPlayer
         bool allowEmptySlots = context == ItemSlot.Context.EquipArmorVanity || context == ItemSlot.Context.EquipAccessoryVanity;
         if (inventory[slot].IsAir && !allowEmptySlots) return false;
 
-        // this seems dumb. A better way must exist
-        if (!(Main.mouseLeft || Main.mouseRight))
-        {
-            dragging = false;
-        }
-
-        if (Main.mouseLeft && (!dragging || slotChanged))
+        if (Main.mouseLeft && slotChanged)
         {
             HandleLeftClick(inventory, context, slot);
         }
 
-        else if (Main.mouseRight && (!dragging || slotChanged))
+        else if (Main.mouseRight && slotChanged)
         {
             HandleRightClick(inventory, context, slot);
         }
@@ -63,13 +60,9 @@ public class InventoryPlayer : ModPlayer
     /// <summary>
     /// Performs a left click if the config allows
     /// </summary>
-    /// <param name="inventory">The collection of items</param>
-    /// <param name="context">What type of slot should be clicked on</param>
-    /// <param name="slot">The index in inventory containing the current item</param>
     /// <returns>True if an additional left click was fired</returns>
     private bool HandleLeftClick(Item[] inventory, int context, int slot)
     {
-        dragging = true;
         bool mouseLeftRelease = Main.mouseLeftRelease;
 
         // skip when the mouse was just pressed down since vanilla can handle it as a click
@@ -97,32 +90,36 @@ public class InventoryPlayer : ModPlayer
         return true;
     }
 
-    // Returns true if an additional right click was fired
+    /// <summary>
+    /// Performs a right click if the config allows
+    /// </summary>
+    /// <returns>True if an additional right click was fired</returns>
     private bool HandleRightClick(Item[] inventory, int context, int slot)
     {
-        dragging = true;
-        bool mrr = Main.mouseRightRelease;
+        bool mouseRightRelease = Main.mouseRightRelease;
         bool rightClickable = context == ItemSlot.Context.InventoryItem && ItemLoader.CanRightClick(inventory[slot]);
         bool vanillaHandled = context == ItemSlot.Context.GuideItem || context == ItemSlot.Context.CraftingMaterial;
 
-        
-
         // skip right click since vanilla already clicked
-        // also skip if it can be right clicked since this would have already been handled before
-        // HoverSlot is called (prevents double consumption)
-        // TODO: Check this logic (mrr == false if rightClickable == true)?
-        if (mrr || (rightClickCache && rightClickable) || vanillaHandled)
+        // also skip if it can be right clicked since this would have already been
+        // handled before HoverSlot is called (prevents double consumption)
+        // TODO: Check this logic (mouseRightRelease == false if rightClickable == true)?
+        if (mouseRightRelease || (rightClickCache && rightClickable) || vanillaHandled)
         {
             Main.NewText($"vanilla right click context: {context}, slot: {slot} release: {Main.mouseRightRelease} cache: {rightClickCache}");
             return false;
         }
 
+        // skip extra right click if disabled by config
+        var rightMouse = InventoryConfig.Instance.RightMouse;
+        if (!rightMouse.Enabled) return false;
+        if (!rightMouse.ModifierOptions.IsSatisfied()) return false;
+
         Main.NewText($"custom right click context: {context}, slot: {slot}");
 
         Main.mouseRightRelease = true;
         ItemSlot.RightClick(inventory, context, slot);
-
-        Main.mouseRightRelease = mrr;
+        Main.mouseRightRelease = mouseRightRelease;
 
         return true;
     }
