@@ -30,13 +30,8 @@ public class InventoryItem : GlobalItem
         {
             // index of the Right Click to Open tooltip (not a good way to do it)
             int rightClickIndex = tooltips.FindIndex(x => x.Name == "Tooltip0");
-            tooltips.Insert(rightClickIndex, new TooltipLine(Mod, "Shift", "Shift Click to unstack"));
-
-            // when holding shift remove the right click tooltip since it is no longer its function
-            if (ItemSlot.ShiftInUse)
-            {
-                tooltips[rightClickIndex + 1].Hide();
-            }
+            int safeIndex = rightClickIndex == -1 ? tooltips.Count : rightClickIndex;
+            tooltips.Insert(safeIndex, new TooltipLine(Mod, "Shift", "Shift + Right Click to unstack"));
         }
     }
 }

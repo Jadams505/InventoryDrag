@@ -1,24 +1,24 @@
 InventoryConfig: {
-	DisplayName: Inventory Config
+	DisplayName: Feature Config
 
 	Headers: {
-		MainFeatures: Main Features Header
-		ExtraFeatures: Extra Features Header
+		MainFeatures: Main Features
+		ExtraFeatures: Extra Features
 	}
 
 	LeftMouse: {
 		Label: Left Mouse
-		Tooltip: ""
+		Tooltip: Settings for dragging with the left mouse button
 	}
 
 	RightMouse: {
 		Label: Right Mouse
-		Tooltip: ""
+		Tooltip: Settings for dragging with the right mouse button
 	}
 
 	SplittableGrabBags: {
 		Label: Splittable Grab Bags
-		Tooltip: ""
+		Tooltip: "Settings for splitting grab bags"
 	}
 }
 
@@ -27,12 +27,12 @@ LeftMouseOptions: {
 
 	Enabled: {
 		Label: Enabled
-		Tooltip: ""
+		Tooltip: Turn OFF to disable dragging when the left mouse button is held
 	}
 
 	ModifierOptions: {
 		Label: Modifier Options
-		Tooltip: ""
+		Tooltip: Configures which modifiers can be used with the left mouse button
 	}
 }
 
@@ -41,22 +41,22 @@ ModifierOptions: {
 
 	AllowCtrl: {
 		Label: Allow Ctrl
-		Tooltip: ""
+		Tooltip: Turn OFF to disable dragging when Ctrl is held
 	}
 
 	AllowShift: {
 		Label: Allow Shift
-		Tooltip: ""
+		Tooltip: Turn OFF to disable dragging when Shift is held
 	}
 
 	AllowAlt: {
 		Label: Allow Alt
-		Tooltip: ""
+		Tooltip: Turn OFF to disable dragging when Alt is held
 	}
 
 	RequireModifier: {
 		Label: Require Modifier
-		Tooltip: ""
+		Tooltip: Turn ON to require a modifier (Ctrl, Shift, or Alt) to enable dragging
 	}
 }
 
@@ -65,12 +65,12 @@ RightMouseOptions: {
 
 	Enabled: {
 		Label: Enabled
-		Tooltip: ""
+		Tooltip: Turn OFF to disable dragging when the right mouse button is held
 	}
 
 	ModifierOptions: {
 		Label: Modifier Options
-		Tooltip: ""
+		Tooltip: Configures which modifiers can be used with the right mouse button
 	}
 }
 
@@ -79,11 +79,11 @@ SplittableGrabBags: {
 
 	Enabled: {
 		Label: Enabled
-		Tooltip: ""
+		Tooltip: Whether or not Shift + Right Click splits the bag instead of opening it
 	}
 
 	ShowTooltip: {
 		Label: Show Tooltip
-		Tooltip: ""
+		Tooltip: Whether or not to show the controls on the toolip
 	}
 }
