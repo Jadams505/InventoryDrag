@@ -65,7 +65,7 @@ public class InventoryPlayer : ModPlayer
     {
         bool mouseLeftRelease = Main.mouseLeftRelease;
 
-        // skip when the mouse was just pressed down since vanilla can handle it as a click
+        // skip when the mouse was just pressed down since vanilla already handled it as a click
         if (mouseLeftRelease)
         {
             Main.NewText($"vanilla left click context: {context}, slot: {slot}");
