@@ -18,7 +18,7 @@ InventoryConfig: {
 
 	SplittableGrabBags: {
 		Label: Splittable Grab Bags
-		Tooltip: "Settings for splitting grab bags"
+		Tooltip: Settings for splitting grab bags
 	}
 }
 

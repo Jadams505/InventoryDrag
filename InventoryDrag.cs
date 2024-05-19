@@ -51,4 +51,11 @@ public class InventoryDrag : Mod
         // call orig after so that the tooltip does not display if items were moved
         orig(inv, context, slot);
     }
+
+    internal static bool debugMessages = false;
+    public static void DebugInChat(string text)
+    {
+        if (debugMessages)
+            Main.NewText(text);
+    }
 }

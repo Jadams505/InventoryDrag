@@ -68,7 +68,7 @@ public class InventoryPlayer : ModPlayer
         // skip when the mouse was just pressed down since vanilla already handled it as a click
         if (mouseLeftRelease)
         {
-            Main.NewText($"vanilla left click context: {context}, slot: {slot}");
+            InventoryDrag.DebugInChat($"vanilla left click context: {context}, slot: {slot}");
             return false;
         }
 
@@ -77,7 +77,7 @@ public class InventoryPlayer : ModPlayer
         if (!leftMouse.Enabled) return false;
         if (!leftMouse.ModifierOptions.IsSatisfied()) return false;
 
-        Main.NewText($"custom left click context: {context}, slot: {slot}");
+        InventoryDrag.DebugInChat($"custom left click context: {context}, slot: {slot}");
 
         // this call skips the need for Main.mouseLeftRelease to be true
         if (VanillaLeftClick(inventory, context, slot))
@@ -106,7 +106,7 @@ public class InventoryPlayer : ModPlayer
         // TODO: Check this logic (mouseRightRelease == false if rightClickable == true)?
         if (mouseRightRelease || (rightClickCache && rightClickable) || vanillaHandled)
         {
-            Main.NewText($"vanilla right click context: {context}, slot: {slot} release: {Main.mouseRightRelease} cache: {rightClickCache}");
+            InventoryDrag.DebugInChat($"vanilla right click context: {context}, slot: {slot} release: {Main.mouseRightRelease} cache: {rightClickCache}");
             return false;
         }
 
@@ -115,7 +115,7 @@ public class InventoryPlayer : ModPlayer
         if (!rightMouse.Enabled) return false;
         if (!rightMouse.ModifierOptions.IsSatisfied()) return false;
 
-        Main.NewText($"custom right click context: {context}, slot: {slot}");
+        InventoryDrag.DebugInChat($"custom right click context: {context}, slot: {slot}");
 
         Main.mouseRightRelease = true;
         ItemSlot.RightClick(inventory, context, slot);
