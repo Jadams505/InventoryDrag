@@ -22,6 +22,8 @@ public class InventoryItem : GlobalItem
         return false;
     }
 
+    private static LocalizedText _toolipText = Language.GetText("Mods.InventoryDrag.GrabBagTooltip");
+
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
     {
         var config = InventoryConfig.Instance.SplittableGrabBags;
@@ -31,7 +33,7 @@ public class InventoryItem : GlobalItem
             // index of the Right Click to Open tooltip (not a good way to do it)
             int rightClickIndex = tooltips.FindIndex(x => x.Name == "Tooltip0");
             int safeIndex = rightClickIndex == -1 ? tooltips.Count : rightClickIndex;
-            tooltips.Insert(safeIndex, new TooltipLine(Mod, "Shift", "Shift + Right Click to unstack"));
+            tooltips.Insert(safeIndex, new TooltipLine(Mod, "Shift", _toolipText.Value));
         }
     }
 }
