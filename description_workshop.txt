@@ -1,0 +1,20 @@
+﻿Allows you to move items between your inventory and chests with a simple click and drag. 
+No need to click on every slot in the inventory, just simply hold down the mouse button and let the mod do the rest. 
+
+[h1]Additional Features[/h1]
+[list]
+[*]Splittable Grab Bags: Allows grab bags to be split with Shift + Right Click
+[/list]
+
+[h1]Config Options[/h1]
+[list]
+[*]Left Mouse.Enabled: Enables dragging when the left mouse button is held
+[*]Right Mouse.Enabled: Enables dragging when the right mouse button is held
+[*]Allow Ctrl: Allows dragging when Ctrl is held
+[*]Allow Shift: Allows dragging when Shift is held
+[*]Allow Alt: Allows dragging when Alt is held
+[*]Splittable Grab Bags.Enabled: Enables if grab bags can be split with Shift + Right Click 
+[*]Splittable Grab Bags.Show Tooltip: Whether or not to show the controls on the toolip
+[/list]
+
+Github: https://github.com/Jadams505/InventoryDrag
