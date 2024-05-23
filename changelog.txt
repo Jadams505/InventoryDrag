@@ -1,1 +1,2 @@
-﻿Initial Release
+﻿
+- Fixed some fix incompatibilities with androLib

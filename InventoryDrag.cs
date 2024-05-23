@@ -1,3 +1,4 @@
+using InventoryDrag.Compatability;
 using InventoryDrag.Config;
 using System.Reflection;
 using Terraria;
@@ -12,10 +13,18 @@ public class InventoryDrag : Mod
     public override void Load()
     {
         Terraria.UI.On_ItemSlot.MouseHover_ItemArray_int_int += On_ItemSlot_MouseHover_ItemArray_int_int;
+        Terraria.UI.On_ItemSlot.Handle_ItemArray_int_int += On_ItemSlot_Handle_ItemArray_int_int;
         Terraria.UI.On_ItemSlot.RightClick_ItemArray_int_int += On_ItemSlot_RightClick_ItemArray_int_int;
         Terraria.On_Main.DrawInventory += On_Main_DrawInventory;
 
         MonoModHooks.Add(ItemLoader_CanRightClick, On_ItemLoader_CanRightClick_Item);
+        MonoModHooks.Add(PlayerLoader_ShiftClickSlot, On_PlayerLoader_ShiftClickSlot);
+    }
+
+    private void On_ItemSlot_Handle_ItemArray_int_int(On_ItemSlot.orig_Handle_ItemArray_int_int orig, Item[] inv, int context, int slot)
+    {
+        AndroLib.FixDoubleClickInBags();
+        orig(inv, context, slot);
     }
 
     private void On_Main_DrawInventory(On_Main.orig_DrawInventory orig, Main self)
@@ -38,6 +47,16 @@ public class InventoryDrag : Mod
         return ret;
     }
 
+    internal static MethodInfo PlayerLoader_ShiftClickSlot = typeof(PlayerLoader).GetMethod("ShiftClickSlot", BindingFlags.Static | BindingFlags.Public);
+    private delegate bool orig_PlayerLoader_ShiftClickSlot(Player player, Item[] inventory, int context, int slot);
+    private static bool On_PlayerLoader_ShiftClickSlot(orig_PlayerLoader_ShiftClickSlot orig, Player player, Item[] inventory, int context, int slot)
+    {
+        bool ret = orig(player, inventory, context, slot);
+        if (player.TryGetModPlayer<InventoryPlayer>(out var invPlayer))
+            invPlayer.overrideShiftLeftClick = ret;
+        return ret;
+    }
+
     private static void On_ItemSlot_RightClick_ItemArray_int_int(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot)
     {
         Main.LocalPlayer.GetModPlayer<InventoryPlayer>().rightClickCache = Main.mouseRightRelease;
@@ -46,13 +65,16 @@ public class InventoryDrag : Mod
 
     private static void On_ItemSlot_MouseHover_ItemArray_int_int(On_ItemSlot.orig_MouseHover_ItemArray_int_int orig, Item[] inv, int context, int slot)
     {
-        Main.LocalPlayer.GetModPlayer<InventoryPlayer>().OverrideHover(inv, context, slot);
+        if (Main.LocalPlayer.TryGetModPlayer<InventoryPlayer>(out var inventoryPlayer))
+        {
+            bool customClick = Main.LocalPlayer.GetModPlayer<InventoryPlayer>().OverrideHover(inv, context, slot);
+        }
 
         // call orig after so that the tooltip does not display if items were moved
         orig(inv, context, slot);
     }
 
-    internal static bool debugMessages = false;
+    internal static bool debugMessages = true;
     public static void DebugInChat(string text)
     {
         if (debugMessages)

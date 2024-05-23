@@ -1,4 +1,5 @@
-﻿using InventoryDrag.Config;
+﻿using InventoryDrag.Compatability;
+using InventoryDrag.Config;
 using System.Reflection;
 using Terraria;
 using Terraria.ID;
@@ -25,13 +26,21 @@ public class InventoryPlayer : ModPlayer
     // This variable caches the value before right click is called.
     internal bool rightClickCache = Main.mouseRightRelease;
 
+    internal bool overrideShiftLeftClick = false;
+
     // This is called directly before ItemSlot.MouseHover()
     public bool OverrideHover(Item[] inventory, int context, int slot)
     {
+        // don't know if I need this, but just in case
+        if (Player.whoAmI != Main.LocalPlayer.whoAmI) return false;
+
         hovering = true;
 
-        // journey mode slots are always context 29 and slot 0 so their only difference is the item 
-        bool journeyModeSlotChange = itemCache != inventory[slot].type && context == ItemSlot.Context.CreativeInfinite;
+        // journey mode slots are always context 29 and slot 0 so their only difference is the item
+        // TODO: Figure out a better to way to know if a slot changed
+        bool journeyModeSlotChange = itemCache != inventory[slot].type;
+
+        //InventoryDrag.DebugInChat($"cache2: {Main.mouseItem.type} cache: {itemCache}, slot: {inventory[slot].type}");
 
         bool slotChanged = noSlot || contextCache != context || slotCache != slot || journeyModeSlotChange;
         contextCache = context;
@@ -46,15 +55,15 @@ public class InventoryPlayer : ModPlayer
 
         if (Main.mouseLeft && slotChanged)
         {
-            HandleLeftClick(inventory, context, slot);
+            return HandleLeftClick(inventory, context, slot);
         }
 
         else if (Main.mouseRight && slotChanged)
         {
-            HandleRightClick(inventory, context, slot);
+            return HandleRightClick(inventory, context, slot);
         }
 
-        return base.HoverSlot(inventory, context, slot);
+        return false;
     }
 
     /// <summary>
@@ -64,20 +73,20 @@ public class InventoryPlayer : ModPlayer
     private bool HandleLeftClick(Item[] inventory, int context, int slot)
     {
         bool mouseLeftRelease = Main.mouseLeftRelease;
-
+        
         // skip when the mouse was just pressed down since vanilla already handled it as a click
-        if (mouseLeftRelease)
+        if (mouseLeftRelease || AndroLib.PreventDoubleClickInJourneyMode(context, overrideShiftLeftClick))
         {
-            InventoryDrag.DebugInChat($"vanilla left click context: {context}, slot: {slot}");
+            overrideShiftLeftClick = false;
+            InventoryDrag.DebugInChat($"vanilla left click context: {context}, slot: {slot} item: {inventory[slot].type}");
             return false;
         }
-
         // skip extra left click if disabled by config
         var leftMouse = InventoryConfig.Instance.LeftMouse;
         if (!leftMouse.Enabled) return false;
         if (!leftMouse.ModifierOptions.IsSatisfied()) return false;
 
-        InventoryDrag.DebugInChat($"custom left click context: {context}, slot: {slot}");
+        InventoryDrag.DebugInChat($"custom left click context: {context}, slot: {slot} item: {inventory[slot].type}");
 
         // this call skips the need for Main.mouseLeftRelease to be true
         if (VanillaLeftClick(inventory, context, slot))
@@ -146,5 +155,15 @@ public class InventoryPlayer : ModPlayer
                 return true;
         }
         return false;
+    }
+
+    public override bool ShiftClickSlot(Item[] inventory, int context, int slot)
+    {
+        return base.ShiftClickSlot(inventory, context, slot);
+    }
+
+    public override void ResetEffects()
+    {
+       
     }
 }

@@ -1,5 +1,5 @@
 displayName = Inventory Drag
 author = Jadams
-version = 1.0.0
+version = 1.0.1
 side = Client
 homepage = https://github.com/Jadams505/InventoryDrag
