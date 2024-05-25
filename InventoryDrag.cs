@@ -19,6 +19,13 @@ public class InventoryDrag : Mod
 
         MonoModHooks.Add(ItemLoader_CanRightClick, On_ItemLoader_CanRightClick_Item);
         MonoModHooks.Add(PlayerLoader_ShiftClickSlot, On_PlayerLoader_ShiftClickSlot);
+
+        AndroLib.Load(this);
+    }
+
+    public override void Unload()
+    {
+        AndroLib.Unload(this);
     }
 
     private void On_ItemSlot_Handle_ItemArray_int_int(On_ItemSlot.orig_Handle_ItemArray_int_int orig, Item[] inv, int context, int slot)
@@ -74,10 +81,9 @@ public class InventoryDrag : Mod
         orig(inv, context, slot);
     }
 
-    internal static bool debugMessages = true;
     public static void DebugInChat(string text)
     {
-        if (debugMessages)
+        if (InventoryConfig.Instance.DebugMessages)
             Main.NewText(text);
     }
 }

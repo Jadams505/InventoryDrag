@@ -23,6 +23,8 @@ public class InventoryConfig : ModConfig
     [Header("ExtraFeatures")]
     [Expand(false)]
     public SplittableGrabBags SplittableGrabBags = new();
+
+    public bool DebugMessages = false;
 }
 
 public class LeftMouseOptions

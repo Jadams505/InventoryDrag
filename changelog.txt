@@ -1,2 +1,2 @@
 ﻿
-- Fixed some fix incompatibilities with androLib
+- Fixed some fix incompatibilities with androLib for real this time (hopefully)

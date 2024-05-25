@@ -20,6 +20,11 @@ InventoryConfig: {
 		Label: Splittable Grab Bags
 		Tooltip: Settings for splitting grab bags
 	}
+
+	DebugMessages: {
+		Label: Debug Messages
+		Tooltip: ""
+	}
 }
 
 LeftMouseOptions: {

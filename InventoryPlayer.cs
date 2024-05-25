@@ -38,11 +38,11 @@ public class InventoryPlayer : ModPlayer
 
         // journey mode slots are always context 29 and slot 0 so their only difference is the item
         // TODO: Figure out a better to way to know if a slot changed
-        bool journeyModeSlotChange = itemCache != inventory[slot].type;
+        bool journeyModeSlotChange = itemCache != inventory[slot].type && context == ItemSlot.Context.CreativeInfinite;
 
         //InventoryDrag.DebugInChat($"cache2: {Main.mouseItem.type} cache: {itemCache}, slot: {inventory[slot].type}");
 
-        bool slotChanged = noSlot || contextCache != context || slotCache != slot || journeyModeSlotChange;
+        bool slotChanged = noSlot || contextCache != context || slotCache != slot || journeyModeSlotChange || AndroLib.DidBagSlotChange();
         contextCache = context;
         slotCache = slot;
         itemCache = inventory[slot].type;

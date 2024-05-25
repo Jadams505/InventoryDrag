@@ -5,4 +5,9 @@
     <AssemblyName>InventoryDrag</AssemblyName>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="androLib">
+      <HintPath>..\ModAssemblies\androLib_v1.0.6.7.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
