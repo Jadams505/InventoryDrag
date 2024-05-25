@@ -15,6 +15,7 @@ public class InventoryDrag : Mod
         Terraria.UI.On_ItemSlot.MouseHover_ItemArray_int_int += On_ItemSlot_MouseHover_ItemArray_int_int;
         Terraria.UI.On_ItemSlot.Handle_ItemArray_int_int += On_ItemSlot_Handle_ItemArray_int_int;
         Terraria.UI.On_ItemSlot.RightClick_ItemArray_int_int += On_ItemSlot_RightClick_ItemArray_int_int;
+        Terraria.UI.On_ItemSlot.LeftClick_ItemArray_int_int += On_ItemSlot_LeftClick_ItemArray_int_int;
         Terraria.On_Main.DrawInventory += On_Main_DrawInventory;
 
         MonoModHooks.Add(ItemLoader_CanRightClick, On_ItemLoader_CanRightClick_Item);
@@ -64,9 +65,19 @@ public class InventoryDrag : Mod
         return ret;
     }
 
+    private void On_ItemSlot_LeftClick_ItemArray_int_int(On_ItemSlot.orig_LeftClick_ItemArray_int_int orig, Item[] inv, int context, int slot)
+    {
+        if (Main.LocalPlayer.TryGetModPlayer<InventoryPlayer>(out var player))
+            player.leftClickCache = Main.mouseLeftRelease;
+
+        orig(inv, context, slot);
+    }
+
     private static void On_ItemSlot_RightClick_ItemArray_int_int(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot)
     {
-        Main.LocalPlayer.GetModPlayer<InventoryPlayer>().rightClickCache = Main.mouseRightRelease;
+        if (Main.LocalPlayer.TryGetModPlayer<InventoryPlayer>(out var player))
+            player.rightClickCache = Main.mouseRightRelease;
+
         orig(inv, context, slot);
     }
 

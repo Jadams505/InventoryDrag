@@ -1,6 +1,7 @@
 ﻿using androLib;
 using androLib.UI;
 using System;
+using System.Linq;
 using System.Reflection;
 using Terraria;
 using Terraria.ModLoader;
@@ -9,9 +10,9 @@ using Terraria.UI;
 namespace InventoryDrag.Compatability;
 public static class AndroLib
 {
-    internal static string modName = "androLib";
+    internal const string androLib = "androLib";
     public static Mod Instance = null;
-    public static bool Enabled = ModLoader.TryGetMod(modName, out Instance);
+    public static bool Enabled = ModLoader.TryGetMod(androLib, out Instance);
 
     /// <summary>
     /// Call before ItemSlot.Handle()
@@ -50,13 +51,14 @@ public static class AndroLib
         AndroLibReference.Unload();
     }
 
-    [JITWhenModsEnabled("androLib")]
+    [JITWhenModsEnabled(androLib)]
     public static bool DidBagSlotChange()
     {
         if (!Enabled) return false;
 
         // can probably do better than this, but I think its good enough
         if (NoBagsHovered) return false;
+        //InventoryDrag.DebugInChat($"id: {HoverId}");
 
         if (Main.LocalPlayer.TryGetModPlayer<AndroLibPlayer>(out var player))
         {
@@ -66,54 +68,50 @@ public static class AndroLib
         return false;
     }
 
-    [JITWhenModsEnabled("androLib")]
+    [JITWhenModsEnabled(androLib)]
     public static bool NoBagsHovered => MasterUIManager.NoUIBeingHovered;
+
+    [JITWhenModsEnabled(androLib)]
+    public static int HoverId => MasterUIManager.UIBeingHovered;
+
+    [JITWhenModsEnabled(androLib)]
+    public static void UpdateBagSlotCache()
+    {
+        if (!Enabled) return;
+
+        AndroLibReference.UpdateItemSlot();
+    }
 
 }
 
 [JITWhenModsEnabled("androLib")]
 public static class AndroLibReference
 {
-    internal static MethodInfo BagsUI_UpdateItemSlot = null;
-    private delegate void orig_BagsUI_UpdateItemSlot(BagUI self, int inventoryIndex, BagUI bagUI, Item[] inventory, UIItemSlotData[] slotDatas);
-
-    private static void On_BagsUI_UpdateItemSlot(orig_BagsUI_UpdateItemSlot orig, BagUI self, int inventoryIndex, BagUI bagUI, Item[] inventory, UIItemSlotData[] slotDatas)
+    internal static FieldInfo BagUI_drawnUIData;
+    public static void UpdateItemSlot()
     {
-        try
-        {
-            UIItemSlotData slot = slotDatas[inventoryIndex];
-            if (slot.IsMouseHovering)
-            {
-                if (Main.LocalPlayer.TryGetModPlayer<AndroLibPlayer>(out var player))
-                {
-                    player.UpdateSlotChange(slot.ID, inventoryIndex);
-                }
-                //InventoryDrag.DebugInChat($"topL: {slot.TopLeft} bottomR: {slot.BottomRight} id:{slot.ID} index: {inventoryIndex}");
-            }
+        var bagUI = StorageManager.BagUIs.FirstOrDefault(x => x.Hovering, null);
+        if (bagUI is null) return;
 
-            orig(self, inventoryIndex, bagUI, inventory, slotDatas);
-        }
-        catch (NullReferenceException e)
-        {
-            // I don't know why this happens (seems to happen when reloading mods)
-            // Nothing bads seems to happen though just the message in chat
-            var message = e.Message;
-        }
-        catch (Exception e)
-        {
-            _ = e;
-        }
+        var data = BagUI_drawnUIData?.GetValue(bagUI) as BagUI.DrawnUIData;
+        if (data is null) return;
+
+        int index = Array.FindIndex(data.slotData, x => x.IsMouseHovering);
+        if (index == -1) return;
+
+        if (Main.LocalPlayer.TryGetModPlayer<AndroLibPlayer>(out var player) is false) return;
+
+        player.UpdateSlotChange(bagUI.ID, index);
     }
 
     public static void Load()
     {
-        BagsUI_UpdateItemSlot = typeof(BagUI).GetMethod("UpdateItemSlot", BindingFlags.Instance | BindingFlags.NonPublic);
-        MonoModHooks.Add(BagsUI_UpdateItemSlot, On_BagsUI_UpdateItemSlot);
+        BagUI_drawnUIData = typeof(BagUI).GetField("drawnUIData", BindingFlags.Instance | BindingFlags.NonPublic);
     }
 
     public static void Unload()
     {
-        BagsUI_UpdateItemSlot = null;
+        BagUI_drawnUIData = null;
     }
 }
 

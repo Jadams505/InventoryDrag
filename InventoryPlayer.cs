@@ -26,6 +26,8 @@ public class InventoryPlayer : ModPlayer
     // This variable caches the value before right click is called.
     internal bool rightClickCache = Main.mouseRightRelease;
 
+    internal bool leftClickCache = Main.mouseLeftRelease;
+
     internal bool overrideShiftLeftClick = false;
 
     // This is called directly before ItemSlot.MouseHover()
@@ -46,6 +48,7 @@ public class InventoryPlayer : ModPlayer
         contextCache = context;
         slotCache = slot;
         itemCache = inventory[slot].type;
+        AndroLib.UpdateBagSlotCache();
 
         // you can right click an empty vanity slot to switch with main equip
         // as far as I know this might be the only case for a empty slot to be draggable
@@ -73,6 +76,8 @@ public class InventoryPlayer : ModPlayer
     private bool HandleLeftClick(Item[] inventory, int context, int slot)
     {
         bool mouseLeftRelease = Main.mouseLeftRelease;
+
+        if (mouseLeftRelease != leftClickCache) InventoryDrag.DebugInChat($"mouseLeftRelease == leftClickCache ({mouseLeftRelease == leftClickCache})");
         
         // skip when the mouse was just pressed down since vanilla already handled it as a click
         if (mouseLeftRelease || AndroLib.PreventDoubleClickInJourneyMode(context, overrideShiftLeftClick))
@@ -94,6 +99,7 @@ public class InventoryPlayer : ModPlayer
 
         Main.mouseLeftRelease = true;
         ItemSlot.LeftClick(inventory, context, slot);
+        leftClickCache = false;
         Main.mouseLeftRelease = mouseLeftRelease;
 
         return true;
