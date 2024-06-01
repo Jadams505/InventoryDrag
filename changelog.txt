@@ -1,3 +1,6 @@
 ﻿
-- v1.0.2
-- Fixed some fix incompatibilities with androLib for real this time (hopefully)
+Inventory Drag v{ModVersion} has been published to {tMLBuildPurpose} tML v{tMLVersion}.
+Learn more at the [url={ModHomepage}]homepage[/url]
+
+- Fixed some double click issues
+- Changed the default config for Left Click to Require Modifier = true
