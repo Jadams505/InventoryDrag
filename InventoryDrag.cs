@@ -13,8 +13,8 @@ public class InventoryDrag : Mod
     public override void Load()
     {
         Terraria.UI.On_ItemSlot.MouseHover_ItemArray_int_int += On_ItemSlot_MouseHover_ItemArray_int_int;
-        Terraria.UI.On_ItemSlot.Handle_ItemArray_int_int += On_ItemSlot_Handle_ItemArray_int_int;
         Terraria.UI.On_ItemSlot.RightClick_ItemArray_int_int += On_ItemSlot_RightClick_ItemArray_int_int;
+        Terraria.UI.On_ItemSlot.Handle_refItem_int += On_ItemSlot_Handle_refItem_int;
         Terraria.UI.On_ItemSlot.LeftClick_ItemArray_int_int += On_ItemSlot_LeftClick_ItemArray_int_int;
         Terraria.On_Main.DrawInventory += On_Main_DrawInventory;
 
@@ -24,15 +24,21 @@ public class InventoryDrag : Mod
         AndroLib.Load(this);
     }
 
+    // This does not get called in Vanilla but multiple mods seem to use it and it causes double click issues
+    // androLib: MasterUIManager.ItemSlotClickInteractions()
+    // StarsAbove: VanillaItemSlotWrapper.DrawSelf()
+    private void On_ItemSlot_Handle_refItem_int(On_ItemSlot.orig_Handle_refItem_int orig, ref Item inv, int context)
+    {
+        if (Main.LocalPlayer.TryGetModPlayer<InventoryPlayer>(out var player))
+        {
+            player.noSlot = false;
+        }
+        orig(ref inv, context);
+    }
+
     public override void Unload()
     {
         AndroLib.Unload(this);
-    }
-
-    private void On_ItemSlot_Handle_ItemArray_int_int(On_ItemSlot.orig_Handle_ItemArray_int_int orig, Item[] inv, int context, int slot)
-    {
-        AndroLib.FixDoubleClickInBags();
-        orig(inv, context, slot);
     }
 
     private void On_Main_DrawInventory(On_Main.orig_DrawInventory orig, Main self)

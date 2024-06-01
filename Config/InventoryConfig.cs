@@ -30,7 +30,11 @@ public class InventoryConfig : ModConfig
 public class LeftMouseOptions
 {
     public bool Enabled = true;
-    public ModifierOptions ModifierOptions = new();
+    public ModifierOptions ModifierOptions = new(
+        allowCtrl: true, 
+        allowShift: true, 
+        allowAlt: true, 
+        requireModifier: true);
 
     public override bool Equals(object obj)
     {
@@ -69,6 +73,22 @@ public class ModifierOptions
     public bool AllowShift = true;
     public bool AllowAlt = true;
     public bool RequireModifier = false;
+
+    public ModifierOptions()
+    {
+        AllowCtrl = true;
+        AllowShift = true;
+        AllowAlt = true;
+        RequireModifier = false;
+    }
+
+    public ModifierOptions(bool allowCtrl, bool allowShift, bool allowAlt, bool requireModifier)
+    {
+        AllowCtrl = allowCtrl;
+        AllowShift = allowShift;
+        AllowAlt = allowAlt;
+        RequireModifier = requireModifier;
+    }
 
     public bool IsSatisfied()
     {

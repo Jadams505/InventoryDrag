@@ -15,18 +15,6 @@ public static class AndroLib
     public static bool Enabled = ModLoader.TryGetMod(androLib, out Instance);
 
     /// <summary>
-    /// Call before ItemSlot.Handle()
-    /// </summary>
-    public static void FixDoubleClickInBags()
-    {
-        if (!Enabled) return;
-
-        var player = Main.LocalPlayer.GetModPlayer<InventoryPlayer>();
-        // This function is used by androLib/Vacuum Bags. This fixes a double click issue.
-        player.noSlot = false;
-    }
-
-    /// <summary>
     /// Call in InventoryPlayer.HandleLeftClick()
     /// </summary>
     /// <param name="context"></param>
