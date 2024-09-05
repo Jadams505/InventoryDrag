@@ -2,6 +2,7 @@
 using InventoryDrag.Config;
 using System.Reflection;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
@@ -89,9 +90,12 @@ public class InventoryPlayer : ModPlayer
         // skip extra left click if disabled by config
         var leftMouse = InventoryConfig.Instance.LeftMouse;
         if (!leftMouse.Enabled) return false;
-        if (!leftMouse.ModifierOptions.IsSatisfied()) return false;
+        if (!leftMouse.ModifierOptions.IsSatisfied(Player)) return false;
 
         InventoryDrag.DebugInChat($"custom left click context: {context}, slot: {slot} item: {inventory[slot].type}");
+
+        if (HandleDragThrowing(inventory, context, slot))
+            return true;
 
         // this call skips the need for Main.mouseLeftRelease to be true
         if (VanillaLeftClick(inventory, context, slot))
@@ -128,15 +132,37 @@ public class InventoryPlayer : ModPlayer
         // skip extra right click if disabled by config
         var rightMouse = InventoryConfig.Instance.RightMouse;
         if (!rightMouse.Enabled) return false;
-        if (!rightMouse.ModifierOptions.IsSatisfied()) return false;
+        if (!rightMouse.ModifierOptions.IsSatisfied(Player)) return false;
 
-        InventoryDrag.DebugInChat($"custom right click context: {context}, slot: {slot}");
+        InventoryDrag.DebugInChat($"custom right click context: {context}, slot: {slot} item: {inventory[slot].type}");
+
+        if (HandleDragThrowing(inventory, context, slot))
+            return true;
 
         Main.mouseRightRelease = true;
         ItemSlot.RightClick(inventory, context, slot);
         Main.mouseRightRelease = mouseRightRelease;
 
         return true;
+    }
+
+    private bool HandleDragThrowing(Item[] inventory, int context, int slot)
+    {
+        // throw will take presedence over any other action (is this a problem?)
+        bool canThrow = context != ItemSlot.Context.CreativeInfinite;
+        if (Player.controlThrow && canThrow)
+        {
+            var throwConfig = InventoryConfig.Instance.ThrowDragging;
+            // the only value that does anything is 58 for mouseItem which I don't need 
+            var dropSlot = 0;
+            Player.DropSelectedItem(dropSlot, ref inventory[slot]);
+            Player.SetItemAnimation(throwConfig.ThrowDelay);
+            if (throwConfig.PlaySound)
+                SoundEngine.PlaySound(in SoundID.Grab);
+            return true;
+        }
+
+        return false;
     }
 
     internal static MethodInfo ItemSlot_OverrideLeftClick = typeof(ItemSlot).GetMethod("OverrideLeftClick", BindingFlags.NonPublic | BindingFlags.Static);

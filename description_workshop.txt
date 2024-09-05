@@ -4,6 +4,7 @@ No need to click on every slot in the inventory, just simply hold down the mouse
 [h1]Additional Features[/h1]
 [list]
 [*]Splittable Grab Bags: Allows grab bags to be split with Shift + Right Click
+[*]Drag Throwing: Allows items to be thrown while dragging and holding the throw key
 [/list]
 
 [h1]Config Options[/h1]
@@ -13,6 +14,8 @@ No need to click on every slot in the inventory, just simply hold down the mouse
 [*]Allow Ctrl: Allows dragging when Ctrl is held
 [*]Allow Shift: Allows dragging when Shift is held
 [*]Allow Alt: Allows dragging when Alt is held
+[*]Allow Throw: Allows dragging when the Throw key is held
+[*]Require Modifier: Only allows dragging if a modifier (Ctrl, Shift, Alt, Throw) is being held
 [*]Splittable Grab Bags.Enabled: Enables if grab bags can be split with Shift + Right Click 
 [*]Splittable Grab Bags.Show Tooltip: Whether or not to show the controls on the toolip
 [/list]

@@ -2,5 +2,4 @@
 Inventory Drag v{ModVersion} has been published to {tMLBuildPurpose} tML v{tMLVersion}.
 Learn more at the [url={ModHomepage}]homepage[/url]
 
-- Fixed some double click issues
-- Changed the default config for Left Click to Require Modifier = true
+- Added the ability to drop items while dragging

@@ -25,6 +25,11 @@ InventoryConfig: {
 		Label: Debug Messages
 		Tooltip: ""
 	}
+
+	ThrowDragging: {
+		Label: Throw Dragging
+		Tooltip: ""
+	}
 }
 
 LeftMouseOptions: {
@@ -61,7 +66,12 @@ ModifierOptions: {
 
 	RequireModifier: {
 		Label: Require Modifier
-		Tooltip: Turn ON to require a modifier (Ctrl, Shift, or Alt) to enable dragging
+		Tooltip: Turn ON to require a modifier (Ctrl, Shift, Alt, etc) to enable dragging
+	}
+
+	AllowThrow: {
+		Label: Allow Throw
+		Tooltip: Turn OFF to disable dragging when the Throw key is held
 	}
 }
 
@@ -90,5 +100,19 @@ SplittableGrabBags: {
 	ShowTooltip: {
 		Label: Show Tooltip
 		Tooltip: Whether or not to show the controls on the toolip
+	}
+}
+
+ThrowDragging: {
+	Tooltip: ""
+
+	PlaySound: {
+		Label: Play Sound
+		Tooltip: Whether or not to play the grab sound when throwing items
+	}
+
+	ThrowDelay: {
+		Label: Throw Delay
+		Tooltip: How long to wait in ticks between throws (60 ticks = 1 second)
 	}
 }
