@@ -11,195 +11,195 @@ namespace InventoryDrag;
 
 public class InventoryPlayer : ModPlayer
 {
-    internal int contextCache = -1;
-    internal int slotCache = -1;
-    internal int itemCache = ItemID.None;
-    internal bool hovering = false;
+	internal int contextCache = -1;
+	internal int slotCache = -1;
+	internal int itemCache = ItemID.None;
+	internal bool hovering = false;
 
-    /// <summary>
-    /// Set by InventoryDrag.DrawInventory() to determine when the player is no longer hovering over a slot
-    /// </summary>
-    internal bool noSlot = true; 
+	/// <summary>
+	/// Set by InventoryDrag.DrawInventory() to determine when the player is no longer hovering over a slot
+	/// </summary>
+	internal bool noSlot = true; 
 
-    // This is required for right clickable items like crates and bags.
-    // Basically the vanilla functions set Main.mouseRightRelease to false so
-    // I can't differentiate between whether a click happened or not
-    // This variable caches the value before right click is called.
-    internal bool rightClickCache = Main.mouseRightRelease;
+	// This is required for right clickable items like crates and bags.
+	// Basically the vanilla functions set Main.mouseRightRelease to false so
+	// I can't differentiate between whether a click happened or not
+	// This variable caches the value before right click is called.
+	internal bool rightClickCache = Main.mouseRightRelease;
 
-    internal bool leftClickCache = Main.mouseLeftRelease;
+	internal bool leftClickCache = Main.mouseLeftRelease;
 
-    internal bool overrideShiftLeftClick = false;
+	internal bool overrideShiftLeftClick = false;
 
-    // This is called directly before ItemSlot.MouseHover()
-    public bool OverrideHover(Item[] inventory, int context, int slot)
-    {
-        // don't know if I need this, but just in case
-        if (Player.whoAmI != Main.LocalPlayer.whoAmI) return false;
+	// This is called directly before ItemSlot.MouseHover()
+	public bool OverrideHover(Item[] inventory, int context, int slot)
+	{
+		// don't know if I need this, but just in case
+		if (Player.whoAmI != Main.LocalPlayer.whoAmI) return false;
 
-        hovering = true;
+		hovering = true;
 
-        // journey mode slots are always context 29 and slot 0 so their only difference is the item
-        // TODO: Figure out a better to way to know if a slot changed
-        bool journeyModeSlotChange = itemCache != inventory[slot].type && context == ItemSlot.Context.CreativeInfinite;
+		// journey mode slots are always context 29 and slot 0 so their only difference is the item
+		// TODO: Figure out a better to way to know if a slot changed
+		bool journeyModeSlotChange = itemCache != inventory[slot].type && context == ItemSlot.Context.CreativeInfinite;
 
 		//InventoryDrag.DebugInChat($"cache2: {Main.mouseItem.type} cache: {itemCache}, slot: {inventory[slot].type}");
 
-        bool slotChanged = noSlot || contextCache != context || slotCache != slot || journeyModeSlotChange || AndroLib.DidBagSlotChange();
-        contextCache = context;
-        slotCache = slot;
-        itemCache = inventory[slot].type;
-        AndroLib.UpdateBagSlotCache();
+		bool slotChanged = noSlot || contextCache != context || slotCache != slot || journeyModeSlotChange || AndroLib.DidBagSlotChange();
+		contextCache = context;
+		slotCache = slot;
+		itemCache = inventory[slot].type;
+		AndroLib.UpdateBagSlotCache();
 
-        // you can right click an empty vanity slot to switch with main equip
-        // as far as I know this might be the only case for a empty slot to be draggable
-        // TODO: validate this claim and only allow for right click
-        bool allowEmptySlots = context == ItemSlot.Context.EquipArmorVanity || context == ItemSlot.Context.EquipAccessoryVanity;
-        if (inventory[slot].IsAir && !allowEmptySlots) return false;
+		// you can right click an empty vanity slot to switch with main equip
+		// as far as I know this might be the only case for a empty slot to be draggable
+		// TODO: validate this claim and only allow for right click
+		bool allowEmptySlots = context == ItemSlot.Context.EquipArmorVanity || context == ItemSlot.Context.EquipAccessoryVanity;
+		if (inventory[slot].IsAir && !allowEmptySlots) return false;
 
 		// Disables dragging for Wrath of the Gods UI to prevent duplication of books and rewards
 		if (WrathOfTheGods.IsBookshelfSlot(inventory[slot])) return false;
 		if (WrathOfTheGods.IsUnclaimedReward(inventory[slot])) return false;
 
 		if (Main.mouseLeft && slotChanged)
-        {
-            return HandleLeftClick(inventory, context, slot);
-        }
+		{
+			return HandleLeftClick(inventory, context, slot);
+		}
 
-        else if (Main.mouseRight && slotChanged)
-        {
-            return HandleRightClick(inventory, context, slot);
-        }
+		else if (Main.mouseRight && slotChanged)
+		{
+			return HandleRightClick(inventory, context, slot);
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    /// <summary>
-    /// Performs a left click if the config allows
-    /// </summary>
-    /// <returns>True if an additional left click was fired</returns>
-    private bool HandleLeftClick(Item[] inventory, int context, int slot)
-    {
-        bool mouseLeftRelease = Main.mouseLeftRelease;
+	/// <summary>
+	/// Performs a left click if the config allows
+	/// </summary>
+	/// <returns>True if an additional left click was fired</returns>
+	private bool HandleLeftClick(Item[] inventory, int context, int slot)
+	{
+		bool mouseLeftRelease = Main.mouseLeftRelease;
 
-        if (mouseLeftRelease != leftClickCache) InventoryDrag.DebugInChat($"mouseLeftRelease == leftClickCache ({mouseLeftRelease == leftClickCache})");
-        
-        // skip when the mouse was just pressed down since vanilla already handled it as a click
-        if (mouseLeftRelease || AndroLib.PreventDoubleClickInJourneyMode(context, overrideShiftLeftClick))
-        {
-            overrideShiftLeftClick = false;
-            InventoryDrag.DebugInChat($"vanilla left click context: {context}, slot: {slot} item: {inventory[slot].type}");
-            return false;
-        }
-        // skip extra left click if disabled by config
-        var leftMouse = InventoryConfig.Instance.LeftMouse;
-        if (!leftMouse.Enabled) return false;
-        if (!leftMouse.ModifierOptions.IsSatisfied(Player)) return false;
+		if (mouseLeftRelease != leftClickCache) InventoryDrag.DebugInChat($"mouseLeftRelease == leftClickCache ({mouseLeftRelease == leftClickCache})");
+		
+		// skip when the mouse was just pressed down since vanilla already handled it as a click
+		if (mouseLeftRelease || AndroLib.PreventDoubleClickInJourneyMode(context, overrideShiftLeftClick))
+		{
+			overrideShiftLeftClick = false;
+			InventoryDrag.DebugInChat($"vanilla left click context: {context}, slot: {slot} item: {inventory[slot].type}");
+			return false;
+		}
+		// skip extra left click if disabled by config
+		var leftMouse = InventoryConfig.Instance.LeftMouse;
+		if (!leftMouse.Enabled) return false;
+		if (!leftMouse.ModifierOptions.IsSatisfied(Player)) return false;
 
-        InventoryDrag.DebugInChat($"custom left click context: {context}, slot: {slot} item: {inventory[slot].type}");
+		InventoryDrag.DebugInChat($"custom left click context: {context}, slot: {slot} item: {inventory[slot].type}");
 
-        if (HandleDragThrowing(inventory, context, slot))
-            return true;
+		if (HandleDragThrowing(inventory, context, slot))
+			return true;
 
-        // this call skips the need for Main.mouseLeftRelease to be true
-        if (VanillaLeftClick(inventory, context, slot))
-            return true;
+		// this call skips the need for Main.mouseLeftRelease to be true
+		if (VanillaLeftClick(inventory, context, slot))
+			return true;
 
-        Main.mouseLeftRelease = true;
-        ItemSlot.LeftClick(inventory, context, slot);
-        leftClickCache = false;
-        Main.mouseLeftRelease = mouseLeftRelease;
+		Main.mouseLeftRelease = true;
+		ItemSlot.LeftClick(inventory, context, slot);
+		leftClickCache = false;
+		Main.mouseLeftRelease = mouseLeftRelease;
 
-        return true;
-    }
+		return true;
+	}
 
-    /// <summary>
-    /// Performs a right click if the config allows
-    /// </summary>
-    /// <returns>True if an additional right click was fired</returns>
-    private bool HandleRightClick(Item[] inventory, int context, int slot)
-    {
-        bool mouseRightRelease = Main.mouseRightRelease;
-        bool rightClickable = context == ItemSlot.Context.InventoryItem && ItemLoader.CanRightClick(inventory[slot]);
-        bool vanillaHandled = context == ItemSlot.Context.GuideItem || context == ItemSlot.Context.CraftingMaterial;
+	/// <summary>
+	/// Performs a right click if the config allows
+	/// </summary>
+	/// <returns>True if an additional right click was fired</returns>
+	private bool HandleRightClick(Item[] inventory, int context, int slot)
+	{
+		bool mouseRightRelease = Main.mouseRightRelease;
+		bool rightClickable = context == ItemSlot.Context.InventoryItem && ItemLoader.CanRightClick(inventory[slot]);
+		bool vanillaHandled = context == ItemSlot.Context.GuideItem || context == ItemSlot.Context.CraftingMaterial;
 
-        // skip right click since vanilla already clicked
-        // also skip if it can be right clicked since this would have already been
-        // handled before HoverSlot is called (prevents double consumption)
-        // TODO: Check this logic (mouseRightRelease == false if rightClickable == true)?
-        if (mouseRightRelease || (rightClickCache && rightClickable) || vanillaHandled)
-        {
-            InventoryDrag.DebugInChat($"vanilla right click context: {context}, slot: {slot} release: {Main.mouseRightRelease} cache: {rightClickCache}");
-            return false;
-        }
+		// skip right click since vanilla already clicked
+		// also skip if it can be right clicked since this would have already been
+		// handled before HoverSlot is called (prevents double consumption)
+		// TODO: Check this logic (mouseRightRelease == false if rightClickable == true)?
+		if (mouseRightRelease || (rightClickCache && rightClickable) || vanillaHandled)
+		{
+			InventoryDrag.DebugInChat($"vanilla right click context: {context}, slot: {slot} release: {Main.mouseRightRelease} cache: {rightClickCache}");
+			return false;
+		}
 
-        // skip extra right click if disabled by config
-        var rightMouse = InventoryConfig.Instance.RightMouse;
-        if (!rightMouse.Enabled) return false;
-        if (!rightMouse.ModifierOptions.IsSatisfied(Player)) return false;
+		// skip extra right click if disabled by config
+		var rightMouse = InventoryConfig.Instance.RightMouse;
+		if (!rightMouse.Enabled) return false;
+		if (!rightMouse.ModifierOptions.IsSatisfied(Player)) return false;
 
-        InventoryDrag.DebugInChat($"custom right click context: {context}, slot: {slot} item: {inventory[slot].type}");
+		InventoryDrag.DebugInChat($"custom right click context: {context}, slot: {slot} item: {inventory[slot].type}");
 
-        if (HandleDragThrowing(inventory, context, slot))
-            return true;
+		if (HandleDragThrowing(inventory, context, slot))
+			return true;
 
-        Main.mouseRightRelease = true;
-        ItemSlot.RightClick(inventory, context, slot);
-        Main.mouseRightRelease = mouseRightRelease;
+		Main.mouseRightRelease = true;
+		ItemSlot.RightClick(inventory, context, slot);
+		Main.mouseRightRelease = mouseRightRelease;
 
-        return true;
-    }
+		return true;
+	}
 
-    private bool HandleDragThrowing(Item[] inventory, int context, int slot)
-    {
-        // throw will take presedence over any other action (is this a problem?)
-        bool canThrow = context != ItemSlot.Context.CreativeInfinite;
-        if (Player.controlThrow && canThrow)
-        {
-            var throwConfig = InventoryConfig.Instance.ThrowDragging;
-            // the only value that does anything is 58 for mouseItem which I don't need 
-            var dropSlot = 0;
-            Player.DropSelectedItem(dropSlot, ref inventory[slot]);
-            Player.SetItemAnimation(throwConfig.ThrowDelay);
-            if (throwConfig.PlaySound)
-                SoundEngine.PlaySound(in SoundID.Grab);
-            return true;
-        }
+	private bool HandleDragThrowing(Item[] inventory, int context, int slot)
+	{
+		// throw will take presedence over any other action (is this a problem?)
+		bool canThrow = context != ItemSlot.Context.CreativeInfinite;
+		if (Player.controlThrow && canThrow)
+		{
+			var throwConfig = InventoryConfig.Instance.ThrowDragging;
+			// the only value that does anything is 58 for mouseItem which I don't need 
+			var dropSlot = 0;
+			Player.DropSelectedItem(dropSlot, ref inventory[slot]);
+			Player.SetItemAnimation(throwConfig.ThrowDelay);
+			if (throwConfig.PlaySound)
+				SoundEngine.PlaySound(in SoundID.Grab);
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    internal static MethodInfo ItemSlot_OverrideLeftClick = typeof(ItemSlot).GetMethod("OverrideLeftClick", BindingFlags.NonPublic | BindingFlags.Static);
-    internal static MethodInfo ItemSlot_LeftClick_SellOrTrash = typeof(ItemSlot).GetMethod("LeftClick_SellOrTrash", BindingFlags.NonPublic | BindingFlags.Static);
+	internal static MethodInfo ItemSlot_OverrideLeftClick = typeof(ItemSlot).GetMethod("OverrideLeftClick", BindingFlags.NonPublic | BindingFlags.Static);
+	internal static MethodInfo ItemSlot_LeftClick_SellOrTrash = typeof(ItemSlot).GetMethod("LeftClick_SellOrTrash", BindingFlags.NonPublic | BindingFlags.Static);
 
-    /// <summary>
-    /// Same as vanilla's ItemSlot.LeftClick() but removes the need for Main.mouseLeftRelease since
-    /// it could already be reset from the original left click call
-    /// </summary>
-    /// <returns>True if a click was perfomed</returns>
-    private static bool VanillaLeftClick(Item[] inventory, int context, int slot)
-    {
-        Player player = Main.LocalPlayer;
-        bool leftClick = /* Main.mouseLeftRelease && */Main.mouseLeft;
-        if (leftClick)
-        {
-            if ((bool)ItemSlot_OverrideLeftClick?.Invoke(null, [inventory, context, slot]))
-                return true;
+	/// <summary>
+	/// Same as vanilla's ItemSlot.LeftClick() but removes the need for Main.mouseLeftRelease since
+	/// it could already be reset from the original left click call
+	/// </summary>
+	/// <returns>True if a click was perfomed</returns>
+	private static bool VanillaLeftClick(Item[] inventory, int context, int slot)
+	{
+		Player player = Main.LocalPlayer;
+		bool leftClick = /* Main.mouseLeftRelease && */Main.mouseLeft;
+		if (leftClick)
+		{
+			if ((bool)ItemSlot_OverrideLeftClick?.Invoke(null, [inventory, context, slot]))
+				return true;
 
-            inventory[slot].newAndShiny = false;
-            if ((bool)ItemSlot_LeftClick_SellOrTrash?.Invoke(null, [inventory, context, slot]) || player.itemAnimation != 0 || player.itemTime != 0)
-                return true;
-        }
-        return false;
-    }
+			inventory[slot].newAndShiny = false;
+			if ((bool)ItemSlot_LeftClick_SellOrTrash?.Invoke(null, [inventory, context, slot]) || player.itemAnimation != 0 || player.itemTime != 0)
+				return true;
+		}
+		return false;
+	}
 
-    public override bool ShiftClickSlot(Item[] inventory, int context, int slot)
-    {
-        return base.ShiftClickSlot(inventory, context, slot);
-    }
+	public override bool ShiftClickSlot(Item[] inventory, int context, int slot)
+	{
+		return base.ShiftClickSlot(inventory, context, slot);
+	}
 
-    public override void ResetEffects()
-    {
-       
-    }
+	public override void ResetEffects()
+	{
+	   
+	}
 }
