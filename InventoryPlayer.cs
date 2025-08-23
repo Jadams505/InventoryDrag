@@ -43,7 +43,7 @@ public class InventoryPlayer : ModPlayer
         // TODO: Figure out a better to way to know if a slot changed
         bool journeyModeSlotChange = itemCache != inventory[slot].type && context == ItemSlot.Context.CreativeInfinite;
 
-        //InventoryDrag.DebugInChat($"cache2: {Main.mouseItem.type} cache: {itemCache}, slot: {inventory[slot].type}");
+		//InventoryDrag.DebugInChat($"cache2: {Main.mouseItem.type} cache: {itemCache}, slot: {inventory[slot].type}");
 
         bool slotChanged = noSlot || contextCache != context || slotCache != slot || journeyModeSlotChange || AndroLib.DidBagSlotChange();
         contextCache = context;
@@ -57,7 +57,11 @@ public class InventoryPlayer : ModPlayer
         bool allowEmptySlots = context == ItemSlot.Context.EquipArmorVanity || context == ItemSlot.Context.EquipAccessoryVanity;
         if (inventory[slot].IsAir && !allowEmptySlots) return false;
 
-        if (Main.mouseLeft && slotChanged)
+		// Disables dragging for Wrath of the Gods UI to prevent duplication of books and rewards
+		if (WrathOfTheGods.IsBookshelfSlot(inventory[slot])) return false;
+		if (WrathOfTheGods.IsUnclaimedReward(inventory[slot])) return false;
+
+		if (Main.mouseLeft && slotChanged)
         {
             return HandleLeftClick(inventory, context, slot);
         }

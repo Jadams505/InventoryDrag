@@ -9,5 +9,8 @@
     <Reference Include="androLib">
       <HintPath>..\ModAssemblies\androLib_v1.0.6.7.dll</HintPath>
     </Reference>
+    <Reference Include="NoxusBoss">
+      <HintPath>..\ModAssemblies\NoxusBoss_v1.2.24.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
